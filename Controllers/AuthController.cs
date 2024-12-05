@@ -25,25 +25,25 @@ namespace GraflowBackend.Controllers
             var result = await m_SignInManager.PasswordSignInAsync(info.Username, info.Password, false, false);
             if (result.Succeeded)
             {
-                return Ok(AuthStatusBits.SUCCESS);
+                return Ok(APIReturnFlags.SUCCESS);
             }
-            return Ok(AuthStatusBits.SIGN_IN_FAILED);
+            return Ok(APIReturnFlags.SIGN_IN_FAILED);
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterInfo info)
         {
-            AuthStatusBits status = 0;
+            APIReturnFlags status = 0;
             if (m_Context.Users.Any(u => u.NormalizedUsername == info.Username.ToUpper()))
             {
-                status |= AuthStatusBits.USERNAME_TAKEN;
+                status |= APIReturnFlags.USERNAME_TAKEN;
             }
             if (m_Context.Users.Any(u => u.NormalizedEmail == info.Email.ToUpper()))
             {
-                status |= AuthStatusBits.EMAIL_TAKEN;
+                status |= APIReturnFlags.EMAIL_TAKEN;
             }
-            if ((status & AuthStatusBits.USERNAME_TAKEN) == AuthStatusBits.USERNAME_TAKEN
-                || (status & AuthStatusBits.EMAIL_TAKEN) == AuthStatusBits.EMAIL_TAKEN)
+            if ((status & APIReturnFlags.USERNAME_TAKEN) == APIReturnFlags.USERNAME_TAKEN
+                || (status & APIReturnFlags.EMAIL_TAKEN) == APIReturnFlags.EMAIL_TAKEN)
             {
                 return Ok(status);
             }
@@ -59,14 +59,14 @@ namespace GraflowBackend.Controllers
             var result = await m_UserManager.CreateAsync(newUser, info.Password);
             if (result.Succeeded == false)
             {
-                return Ok(AuthStatusBits.BAD_REQUEST);
+                return Ok(APIReturnFlags.BAD_REQUEST);
             }
             var signInResult = await m_SignInManager.PasswordSignInAsync(newUser, info.Password, false, false);
             if (!signInResult.Succeeded)
             {
-                return Ok(AuthStatusBits.SIGN_IN_FAILED);
+                return Ok(APIReturnFlags.SIGN_IN_FAILED);
             }
-            return Ok(AuthStatusBits.SUCCESS);
+            return Ok(APIReturnFlags.SUCCESS);
         }
 
         [HttpGet("isLogged")]
